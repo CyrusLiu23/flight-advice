@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Flight Explorer · 直飞寰宇</title>
+    <meta name="description" content="查询任意城市可以直飞到达的城市，查看当地著名景点与距离。" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231b2f4b'/%3E%3Ctext x='16' y='22' font-size='16' text-anchor='middle' fill='%23b4872f'%3E%E2%9C%A6%3C/text%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="assets/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand__mark">✦</span>
+        <span class="brand__name">FLIGHT&nbsp;EXPLORER</span>
+        <span class="brand__sub" data-i18n="brandSub">直飞寰宇</span>
+      </div>
+      <div class="topbar__actions">
+        <button id="locateBtn" class="btn btn--ghost btn--sm" data-i18n="locate">定位我的城市</button>
+        <div class="lang">
+          <button class="lang__btn is-active" data-lang="zh">中文</button>
+          <button class="lang__btn" data-lang="en">EN</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="page">
+      <section class="hero">
+        <div class="hero__info">
+          <p class="eyebrow" data-i18n="originLabel">出发地 · ORIGIN</p>
+          <h1 class="origin">
+            <span id="originZh">上海</span>
+            <span id="originEn" class="origin__en">Shanghai</span>
+          </h1>
+          <p class="origin__meta" id="originMeta"></p>
+
+          <div class="hero__actions">
+            <button id="searchBtn" class="btn btn--primary"><span data-i18n="searchCity">搜索城市</span></button>
+            <button id="locateBtn2" class="btn btn--ghost"><span data-i18n="autoLocate">自动定位</span></button>
+          </div>
+          <p class="hint" id="heroHint"></p>
+
+          <dl class="stats">
+            <div class="stat">
+              <dt data-i18n="statDirect">直飞城市</dt>
+              <dd id="statDirect">—</dd>
+            </div>
+            <div class="stat">
+              <dt data-i18n="statIntl">国际及港澳台</dt>
+              <dd id="statIntl">—</dd>
+            </div>
+            <div class="stat">
+              <dt data-i18n="statFarthest">最远直飞</dt>
+              <dd id="statFarthest">—</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div class="hero__globe">
+          <canvas id="globe" aria-label="世界航线示意图"></canvas>
+          <div class="globe__caption">
+            <span id="globeCaption" class="globe__caption-main">SHANGHAI</span>
+            <span class="globe__hint" data-i18n="globeHint">拖动旋转 · 滚轮缩放 · 点击圆点查看城市</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="controls">
+        <div class="tabs" id="scopeTabs">
+          <button class="tab is-active" data-scope="all" data-i18n="scopeAll">全部</button>
+          <button class="tab" data-scope="domestic" data-i18n="scopeDomestic">国内</button>
+          <button class="tab" data-scope="intl" data-i18n="scopeIntl">国际及港澳台</button>
+        </div>
+        <div class="controls__right">
+          <label class="select">
+            <span data-i18n="regionLabel">区域</span>
+            <select id="regionSelect"></select>
+          </label>
+          <label class="select">
+            <span data-i18n="sortLabel">排序</span>
+            <select id="sortSelect">
+              <option value="distance" data-i18n="sortDistance">距离最近</option>
+              <option value="name" data-i18n="sortName">按名称</option>
+              <option value="country" data-i18n="sortCountry">按国家/地区</option>
+            </select>
+          </label>
+        </div>
+      </section>
+
+      <p class="result-count" id="resultCount"></p>
+      <section class="results" id="results"></section>
+
+      <section class="block" id="favoritesBlock" hidden>
+        <div class="block__head">
+          <h2 data-i18n="favorites">我的收藏</h2>
+          <span class="block__line"></span>
+        </div>
+        <div class="chips" id="favoriteChips"></div>
+      </section>
+
+      <section class="block">
+        <div class="block__head">
+          <h2 data-i18n="hotOrigins">热门出发地</h2>
+          <span class="block__line"></span>
+        </div>
+        <div class="chips" id="hotChips"></div>
+      </section>
+
+      <footer class="footer">
+        <p data-i18n="footerData">
+          航线与景点为演示数据：国内按枢纽规则生成，国际按「同区域 / 同大洲距离阈值 / 全球枢纽互通 / 最近城市」规则生成。
+        </p>
+        <p data-i18n="footerDistance">所有距离为出发地与目的地之间的大圆（直线）距离，飞行时长为按巡航速度的估算值。</p>
+      </footer>
+    </main>
+
+    <aside class="detail" id="detail" aria-hidden="true">
+      <button class="detail__close" id="detailClose" aria-label="关闭">✕</button>
+      <div class="detail__scroll" id="detailBody"></div>
+    </aside>
+
+    <div class="overlay" id="searchOverlay" aria-hidden="true">
+      <div class="search" role="dialog" aria-modal="true">
+        <div class="search__box">
+          <span class="search__icon">⌕</span>
+          <input
+            id="searchInput"
+            class="search__input"
+            type="search"
+            autocomplete="off"
+            placeholder="搜索城市 / 中英文 / 拼音 / 机场代码"
+            data-i18n-placeholder="searchPlaceholder"
+          />
+          <button class="search__close" id="searchClose">✕</button>
+        </div>
+        <div class="search__results" id="searchResults"></div>
+      </div>
+    </div>
+
+    <script src="data/cities.js"></script>
+    <script src="data/attractions.js"></script>
+    <script src="data/routes.js"></script>
+    <script src="assets/globe.js"></script>
+    <script src="assets/app.js"></script>
+  </body>
+</html>
