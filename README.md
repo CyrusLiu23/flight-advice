@@ -4,35 +4,6 @@
 
 ![界面预览](screenshots/zh-home-and-detail.jpg)
 
-## 发布到 GitHub Pages（让所有人访问）
-
-这是一个纯静态站点，仓库根目录就是网站根目录，可以直接用 GitHub Pages 免费发布：
-
-1. 在 GitHub 上新建一个 **Public** 仓库（例如 `flight-explorer`），不要勾选添加 README。
-2. 在本地仓库目录里执行：
-
-   ```bash
-   cd outputs/flight-explorer-web
-   git init -b main
-   git config user.name "你的 GitHub 用户名"
-   git config user.email "你的邮箱"
-   git add -A
-   git commit -m "feat: Flight Explorer 直飞寰宇"
-   git remote add origin https://github.com/<用户名>/flight-explorer.git
-   git push -u origin main
-   ```
-
-3. 打开仓库的 **Settings → Pages**，Source 选择 **Deploy from a branch**，Branch 选 **main**、目录选 **/(root)**，保存。
-4. 等 1–2 分钟，访问 `https://<用户名>.github.io/flight-explorer/` 即可。
-
-几点说明：
-
-- 仓库里所有文件都会公开（页面、数据、README、截图），发布前确认没有不希望公开的内容。
-- 站内引用全部是相对路径，部署在 `/<仓库名>/` 这样的子目录下也能正常工作；仓库里已放 `.nojekyll`，跳过 Jekyll 处理更快更稳。
-- GitHub Pages 默认走 HTTPS，所以**浏览器定位功能在线上是可用的**（`file://` 打开时才不可用）。
-- 之后每次更新内容，`git add -A && git commit -m "update" && git push` 即可，Pages 会自动重新发布。
-
-如果更想用别的托管：Vercel / Netlify / Cloudflare Pages 都是把这个目录直接拖进去即可，步骤更少，但 GitHub Pages 的好处是内容和代码放在同一个仓库里。
 
 ## 功能
 
